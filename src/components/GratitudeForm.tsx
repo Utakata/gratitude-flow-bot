@@ -4,6 +4,7 @@ import { DateSelector } from "./DateSelector";
 import { GratitudeEntry } from "./GratitudeEntry";
 import { validateGratitudeEntry, formatEntry } from "@/lib/validation";
 import { useToast } from "@/components/ui/use-toast";
+import { PauseDialog } from "./PauseDialog";
 
 export const GratitudeForm = () => {
   const [selectedDate, setSelectedDate] = useState("");
@@ -76,7 +77,10 @@ export const GratitudeForm = () => {
   return (
     <div className="space-y-6 max-w-2xl mx-auto p-4">
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">日付を選択</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">日付を選択</h2>
+          <PauseDialog />
+        </div>
         <DateSelector onDateSelect={setSelectedDate} />
       </div>
 
