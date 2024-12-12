@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -46,28 +45,17 @@ export const LineCredentialsForm = () => {
 
   return (
     <div className="space-y-4 max-w-xl mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>LINE Developers Console</CardTitle>
-          <CardDescription>Enter Channel Secret</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">LINE_CHANNEL_SECRET</h3>
-            <div className="flex space-x-2">
-              <Input
-                type="password"
-                placeholder="Enter LINE_CHANNEL_SECRET"
-                value={channelSecret}
-                onChange={(e) => setChannelSecret(e.target.value)}
-              />
-              <Button variant="outline" onClick={handleSave}>
-                Save
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex space-x-2">
+        <Input
+          type="password"
+          placeholder="Enter LINE_CHANNEL_SECRET"
+          value={channelSecret}
+          onChange={(e) => setChannelSecret(e.target.value)}
+        />
+        <Button variant="outline" onClick={handleSave}>
+          Save
+        </Button>
+      </div>
     </div>
   );
 };
