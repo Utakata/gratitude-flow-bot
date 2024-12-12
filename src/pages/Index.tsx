@@ -1,4 +1,5 @@
 import { GratitudeForm } from "@/components/GratitudeForm";
+import { LineCredentialsForm } from "@/components/LineCredentialsForm";
 
 const Index = () => {
   return (
@@ -7,7 +8,10 @@ const Index = () => {
         <h1 className="text-3xl font-bold text-center mb-8 text-gratitude-900">
           感謝の気持ちを記録
         </h1>
-        <GratitudeForm />
+        <LineCredentialsForm />
+        <div className="mt-8">
+          <GratitudeForm />
+        </div>
       </div>
     </div>
   );
