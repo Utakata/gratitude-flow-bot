@@ -6,12 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export const LineCredentialsForm = () => {
   const [channelSecret, setChannelSecret] = useState("");
-  const [accessToken, setAccessToken] = useState("");
   const { toast } = useToast();
 
-  const handleSave = async (type: "secret" | "token") => {
-    const value = type === "secret" ? channelSecret : accessToken;
-    if (!value) {
+  const handleSave = async () => {
+    if (!channelSecret) {
       toast({
         title: "エラー",
         description: "値を入力してください",
@@ -21,12 +19,12 @@ export const LineCredentialsForm = () => {
     }
 
     try {
-      const response = await fetch(`/api/secrets/${type === "secret" ? "LINE_CHANNEL_SECRET" : "LINE_CHANNEL_ACCESS_TOKEN"}`, {
+      const response = await fetch("/api/secrets/LINE_CHANNEL_SECRET", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ value }),
+        body: JSON.stringify({ value: channelSecret }),
       });
 
       if (!response.ok) throw new Error("保存に失敗しました");
@@ -36,11 +34,7 @@ export const LineCredentialsForm = () => {
         description: "保存しました",
       });
 
-      if (type === "secret") {
-        setChannelSecret("");
-      } else {
-        setAccessToken("");
-      }
+      setChannelSecret("");
     } catch (error) {
       toast({
         title: "エラー",
@@ -55,7 +49,7 @@ export const LineCredentialsForm = () => {
       <Card>
         <CardHeader>
           <CardTitle>LINE Developers Console</CardTitle>
-          <CardDescription>Enter API Keys</CardDescription>
+          <CardDescription>Enter Channel Secret</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -67,22 +61,7 @@ export const LineCredentialsForm = () => {
                 value={channelSecret}
                 onChange={(e) => setChannelSecret(e.target.value)}
               />
-              <Button variant="outline" onClick={() => handleSave("secret")}>
-                Save
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">LINE_CHANNEL_ACCESS_TOKEN</h3>
-            <div className="flex space-x-2">
-              <Input
-                type="password"
-                placeholder="Enter LINE_CHANNEL_ACCESS_TOKEN"
-                value={accessToken}
-                onChange={(e) => setAccessToken(e.target.value)}
-              />
-              <Button variant="outline" onClick={() => handleSave("token")}>
+              <Button variant="outline" onClick={handleSave}>
                 Save
               </Button>
             </div>
