@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminGratitudeList } from "@/components/admin/AdminGratitudeList";
 import { AdminSettingsPanel } from "@/components/admin/AdminSettingsPanel";
@@ -8,8 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { isAdmin, isLoading } = useIsAdmin(user?.id);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const { isAdmin, isLoading } = useIsAdmin(userId);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    };
+
+    getUser();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
