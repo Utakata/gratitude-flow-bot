@@ -17,8 +17,8 @@ export const useIsAdmin = (userId: string | undefined) => {
       try {
         console.log('Checking admin status for user:', userId);
         const { data, error } = await supabase
-          .from('admin_users')
-          .select('user_id')
+          .from('user_roles')
+          .select('role')
           .eq('user_id', userId)
           .single();
 
@@ -33,8 +33,8 @@ export const useIsAdmin = (userId: string | undefined) => {
           return;
         }
 
-        setIsAdmin(!!data);
-        console.log('Admin status:', !!data);
+        setIsAdmin(data?.role === 'admin');
+        console.log('Admin status:', data?.role === 'admin');
       } catch (error) {
         console.error('Error in admin check:', error);
         toast({

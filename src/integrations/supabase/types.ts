@@ -9,21 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_users: {
-        Row: {
-          created_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       gratitude_entries: {
         Row: {
           content: string
@@ -82,6 +67,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
