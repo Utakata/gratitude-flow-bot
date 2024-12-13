@@ -1,8 +1,34 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminGratitudeList } from "@/components/admin/AdminGratitudeList";
 import { AdminSettingsPanel } from "@/components/admin/AdminSettingsPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminPage = () => {
+  const navigate = useNavigate();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { isAdmin, isLoading } = useIsAdmin(user?.id);
+
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      navigate('/');
+    }
+  }, [isAdmin, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gratitude-50 to-white flex items-center justify-center">
+        <div className="text-gratitude-900">読み込み中...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gratitude-50 to-white">
       <div className="container py-8">
