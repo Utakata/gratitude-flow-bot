@@ -1,4 +1,6 @@
 import { AdminGratitudeList } from "@/components/admin/AdminGratitudeList";
+import { AdminSettingsPanel } from "@/components/admin/AdminSettingsPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminPage = () => {
   return (
@@ -7,7 +9,21 @@ const AdminPage = () => {
         <h1 className="text-3xl font-bold text-center mb-8 text-gratitude-900">
           管理者ページ
         </h1>
-        <AdminGratitudeList />
+        
+        <Tabs defaultValue="entries" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="entries">投稿一覧</TabsTrigger>
+            <TabsTrigger value="settings">API設定</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="entries">
+            <AdminGratitudeList />
+          </TabsContent>
+          
+          <TabsContent value="settings">
+            <AdminSettingsPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
