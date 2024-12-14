@@ -63,6 +63,8 @@ Deno.serve(async (req) => {
           displayName: profileData.displayName,
           pictureUrl: profileData.pictureUrl,
         },
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

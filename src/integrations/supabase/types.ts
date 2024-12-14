@@ -68,6 +68,39 @@ export type Database = {
           },
         ]
       }
+      line_settings: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          is_messaging_enabled: boolean | null
+          line_user_id: string | null
+          messaging_token: string | null
+          refresh_token: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          is_messaging_enabled?: boolean | null
+          line_user_id?: string | null
+          messaging_token?: string | null
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          is_messaging_enabled?: boolean | null
+          line_user_id?: string | null
+          messaging_token?: string | null
+          refresh_token?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

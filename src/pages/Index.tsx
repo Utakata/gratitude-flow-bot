@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { GratitudeForm } from "@/components/GratitudeForm";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, UserCheck, Smartphone } from "lucide-react";
+import { LogOut, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
-const CHANNEL_ID = "2003632166"; // Your LINE Channel ID
-const REDIRECT_URI = encodeURIComponent(window.location.origin);
+import { LineLoginButton } from "@/components/LineLoginButton";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showLoginInfo, setShowLoginInfo] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -19,6 +17,18 @@ const Index = () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     const state = params.get('state');
+    const error = params.get('error');
+    const error_description = params.get('error_description');
+    
+    if (error) {
+      console.error('LINE Login Error:', error, error_description);
+      toast({
+        variant: "destructive",
+        title: "ログインエラー",
+        description: error_description || "ログインに失敗しました",
+      });
+      return;
+    }
     
     if (code) {
       // Verify state to prevent CSRF attacks
@@ -33,6 +43,8 @@ const Index = () => {
         });
       }
       localStorage.removeItem('line_state');
+      // Remove code from URL without refreshing the page
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     // Check if user is already logged in
@@ -69,12 +81,19 @@ const Index = () => {
 
       const data = await response.json();
       
-      // Store user data in localStorage
+      // Store user data in localStorage and Supabase
       localStorage.setItem('line_user', JSON.stringify(data.user));
       setUser(data.user);
-      
-      // Remove code from URL without refreshing the page
-      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // Update line_settings in Supabase
+      await supabase.from('line_settings').upsert({
+        user_id: data.user.id,
+        line_user_id: data.user.id,
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        is_messaging_enabled: true,
+        updated_at: new Date().toISOString(),
+      });
 
       toast({
         title: "ログインしました",
@@ -88,26 +107,6 @@ const Index = () => {
         description: error.message,
       });
     }
-  };
-
-  const handleLogin = () => {
-    setShowLoginInfo(true);
-  };
-
-  const proceedWithLogin = () => {
-    // Generate random state for security
-    const state = Math.random().toString(36).substring(7);
-    localStorage.setItem('line_state', state);
-
-    // Construct LINE login URL
-    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code` +
-      `&client_id=${CHANNEL_ID}` +
-      `&redirect_uri=${REDIRECT_URI}` +
-      `&state=${state}` +
-      `&scope=profile`;
-
-    // Redirect to LINE login
-    window.location.href = lineLoginUrl;
   };
 
   const handleLogout = () => {
@@ -150,30 +149,10 @@ const Index = () => {
                 </Button>
               </>
             ) : (
-              <Button
-                onClick={handleLogin}
-                className="flex items-center gap-2 bg-[#00B900] hover:bg-[#00A000]"
-              >
-                <LogIn className="h-4 w-4" />
-                LINEでログイン
-              </Button>
+              <LineLoginButton />
             )}
           </div>
         </div>
-
-        {showLoginInfo && !user && (
-          <Alert className="mb-8">
-            <Smartphone className="h-4 w-4" />
-            <AlertDescription>
-              LINEログインには2段階認証が必要です。スマートフォンのLINEアプリが必要になりますので、ご準備ください。
-              <div className="mt-4">
-                <Button onClick={proceedWithLogin} className="bg-[#00B900] hover:bg-[#00A000]">
-                  続ける
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
 
         {user ? (
           <div className="mt-8">
