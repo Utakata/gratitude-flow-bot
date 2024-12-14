@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { GratitudeForm } from "@/components/GratitudeForm";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogIn, LogOut, UserCheck, Smartphone } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const CHANNEL_ID = "YOUR_LINE_CHANNEL_ID"; // You'll need to replace this with your LINE Channel ID
+const CHANNEL_ID = "2003632166"; // Your LINE Channel ID
 const REDIRECT_URI = encodeURIComponent(window.location.origin);
 
 const Index = () => {

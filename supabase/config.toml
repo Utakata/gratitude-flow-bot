@@ -1,1 +1,3 @@
 project_id = "zdrzilibthwqzxbepmas"
+[functions.line-callback]
+verify_jwt = false
