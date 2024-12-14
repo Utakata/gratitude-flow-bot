@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { GratitudeForm } from "@/components/GratitudeForm";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, UserCheck } from "lucide-react";
+import { LogIn, LogOut, UserCheck, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CHANNEL_ID = "YOUR_LINE_CHANNEL_ID"; // You'll need to replace this with your LINE Channel ID
 const REDIRECT_URI = encodeURIComponent(window.location.origin);
@@ -11,6 +12,7 @@ const REDIRECT_URI = encodeURIComponent(window.location.origin);
 const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showLoginInfo, setShowLoginInfo] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -20,7 +22,18 @@ const Index = () => {
     const state = params.get('state');
     
     if (code) {
-      handleLineCallback(code);
+      // Verify state to prevent CSRF attacks
+      const savedState = localStorage.getItem('line_state');
+      if (state === savedState) {
+        handleLineCallback(code);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "セキュリティエラー",
+          description: "不正なリクエストです。もう一度ログインしてください。",
+        });
+      }
+      localStorage.removeItem('line_state');
     }
 
     // Check if user is already logged in
@@ -38,23 +51,36 @@ const Index = () => {
     };
 
     checkAuth();
-  }, []);
+  }, [toast]);
 
   const handleLineCallback = async (code: string) => {
     try {
-      // Here you would typically exchange the code for an access token
-      // and get user profile information using LINE's API
-      // For now, we'll simulate this with a mock user
-      const mockUser = {
-        id: 'mock_id',
-        displayName: 'LINE User',
-      };
+      // Exchange authorization code for access token using Edge Function
+      const response = await fetch('/api/line/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, redirectUri: window.location.origin }),
+      });
 
-      localStorage.setItem('line_user', JSON.stringify(mockUser));
-      setUser(mockUser);
+      if (!response.ok) {
+        throw new Error('認証に失敗しました');
+      }
+
+      const data = await response.json();
+      
+      // Store user data in localStorage
+      localStorage.setItem('line_user', JSON.stringify(data.user));
+      setUser(data.user);
       
       // Remove code from URL without refreshing the page
       window.history.replaceState({}, document.title, window.location.pathname);
+
+      toast({
+        title: "ログインしました",
+        description: `ようこそ、${data.user.displayName}さん`,
+      });
     } catch (error: any) {
       console.error('Error during LINE callback:', error);
       toast({
@@ -66,6 +92,10 @@ const Index = () => {
   };
 
   const handleLogin = () => {
+    setShowLoginInfo(true);
+  };
+
+  const proceedWithLogin = () => {
     // Generate random state for security
     const state = Math.random().toString(36).substring(7);
     localStorage.setItem('line_state', state);
@@ -131,6 +161,20 @@ const Index = () => {
             )}
           </div>
         </div>
+
+        {showLoginInfo && !user && (
+          <Alert className="mb-8">
+            <Smartphone className="h-4 w-4" />
+            <AlertDescription>
+              LINEログインには2段階認証が必要です。スマートフォンのLINEアプリが必要になりますので、ご準備ください。
+              <div className="mt-4">
+                <Button onClick={proceedWithLogin} className="bg-[#00B900] hover:bg-[#00A000]">
+                  続ける
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {user ? (
           <div className="mt-8">
