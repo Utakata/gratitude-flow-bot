@@ -7,15 +7,21 @@ export const LineLoginButton = () => {
     const state = Math.random().toString(36).substring(7);
     localStorage.setItem('line_state', state);
 
+    // Get the current origin for the redirect_uri
+    const redirectUri = `${window.location.origin}/callback`;
+    console.log('Redirect URI:', redirectUri);
+
     // Construct LINE login URL with required parameters
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: '2003632166',
-      redirect_uri: window.location.origin,
+      redirect_uri: redirectUri,
       state: state,
       scope: 'profile openid',
       nonce: Math.random().toString(36).substring(7),
     });
+
+    console.log('LINE Login URL:', `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`);
 
     // Redirect to LINE login
     window.location.href = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
