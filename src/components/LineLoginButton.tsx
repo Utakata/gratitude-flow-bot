@@ -9,7 +9,9 @@ export const LineLoginButton = () => {
 
     // Get the current origin for the redirect_uri
     const redirectUri = `${window.location.origin}/callback`;
-    console.log('Using redirect URI:', redirectUri);
+    console.log('Current origin:', window.location.origin);
+    console.log('Full redirect URI:', redirectUri);
+    console.log('Encoded redirect URI:', encodeURIComponent(redirectUri));
 
     // Construct LINE login URL with required parameters
     const params = new URLSearchParams({
@@ -22,7 +24,7 @@ export const LineLoginButton = () => {
     });
 
     const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
-    console.log('LINE Login URL:', loginUrl);
+    console.log('Full LINE Login URL:', loginUrl);
 
     // Redirect to LINE login
     window.location.href = loginUrl;
