@@ -1,3 +1,5 @@
 project_id = "zdrzilibthwqzxbepmas"
 [functions.line-callback]
 verify_jwt = false
+[functions.line-webhook]
+verify_jwt = false
