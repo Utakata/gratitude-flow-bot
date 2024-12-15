@@ -8,26 +8,27 @@ export const LineLoginButton = () => {
     localStorage.setItem('line_state', state);
 
     // Get the current origin for the redirect_uri
+    // Use window.location.origin to get the base URL without trailing slash
     const redirectUri = `${window.location.origin}/callback`;
+    
+    // Debug logs to verify the redirect URI
     console.log('Current origin:', window.location.origin);
     console.log('Full redirect URI:', redirectUri);
-    console.log('Encoded redirect URI:', encodeURIComponent(redirectUri));
 
     // Construct LINE login URL with required parameters
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: '2003632166',
-      redirect_uri: redirectUri,
-      state: state,
-      scope: 'profile openid',
-      nonce: Math.random().toString(36).substring(7),
-    });
+    const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
+    lineLoginUrl.searchParams.append('response_type', 'code');
+    lineLoginUrl.searchParams.append('client_id', '2003632166');
+    lineLoginUrl.searchParams.append('redirect_uri', redirectUri);
+    lineLoginUrl.searchParams.append('state', state);
+    lineLoginUrl.searchParams.append('scope', 'profile openid');
+    lineLoginUrl.searchParams.append('nonce', Math.random().toString(36).substring(7));
 
-    const loginUrl = `https://access.line.me/oauth2/v2.1/authorize?${params.toString()}`;
-    console.log('Full LINE Login URL:', loginUrl);
+    // Log the final URL for debugging
+    console.log('Final LINE Login URL:', lineLoginUrl.toString());
 
     // Redirect to LINE login
-    window.location.href = loginUrl;
+    window.location.href = lineLoginUrl.toString();
   };
 
   return (
