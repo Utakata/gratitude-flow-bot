@@ -8,12 +8,10 @@ export const LineLoginButton = () => {
     localStorage.setItem('line_state', state);
 
     // Get the current origin for the redirect_uri
-    // Use window.location.origin to get the base URL without trailing slash
-    const redirectUri = `${window.location.origin}/callback`;
+    const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
     
     // Debug logs to verify the redirect URI
-    console.log('Current origin:', window.location.origin);
-    console.log('Full redirect URI:', redirectUri);
+    console.log('Using hardcoded redirect URI:', redirectUri);
 
     // Construct LINE login URL with required parameters
     const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
@@ -26,6 +24,7 @@ export const LineLoginButton = () => {
 
     // Log the final URL for debugging
     console.log('Final LINE Login URL:', lineLoginUrl.toString());
+    console.log('Redirect URI from URL object:', lineLoginUrl.searchParams.get('redirect_uri'));
 
     // Redirect to LINE login
     window.location.href = lineLoginUrl.toString();
