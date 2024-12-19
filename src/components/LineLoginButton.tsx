@@ -22,7 +22,7 @@ export const LineLoginButton = () => {
       const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
       lineLoginUrl.searchParams.append('response_type', 'code');
       lineLoginUrl.searchParams.append('client_id', '2003632166');
-      lineLoginUrl.searchParams.append('redirect_uri', encodeURIComponent(redirectUri));
+      lineLoginUrl.searchParams.append('redirect_uri', redirectUri);
       lineLoginUrl.searchParams.append('state', state);
       lineLoginUrl.searchParams.append('scope', 'profile openid');
       lineLoginUrl.searchParams.append('bot_prompt', 'normal');
@@ -30,7 +30,7 @@ export const LineLoginButton = () => {
       // Log constructed URL and parameters for debugging
       console.log('LINE Login URL Parameters:');
       console.log('- client_id:', lineLoginUrl.searchParams.get('client_id'));
-      console.log('- redirect_uri:', decodeURIComponent(lineLoginUrl.searchParams.get('redirect_uri') || ''));
+      console.log('- redirect_uri:', lineLoginUrl.searchParams.get('redirect_uri'));
       console.log('- scope:', lineLoginUrl.searchParams.get('scope'));
       console.log('- state:', lineLoginUrl.searchParams.get('state'));
       console.log('Final LINE Login URL:', lineLoginUrl.toString());
