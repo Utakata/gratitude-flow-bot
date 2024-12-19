@@ -10,24 +10,33 @@ export const LineLoginButton = () => {
     // Get the current origin for the redirect_uri
     const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
     
-    // Debug logs to verify the redirect URI
-    console.log('Using hardcoded redirect URI:', redirectUri);
+    // Debug logs for troubleshooting
+    console.log('Starting LINE login process...');
+    console.log('Using redirect URI:', redirectUri);
 
-    // Construct LINE login URL with required parameters
-    const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
-    lineLoginUrl.searchParams.append('response_type', 'code');
-    lineLoginUrl.searchParams.append('client_id', '2003632166');
-    lineLoginUrl.searchParams.append('redirect_uri', redirectUri);
-    lineLoginUrl.searchParams.append('state', state);
-    lineLoginUrl.searchParams.append('scope', 'profile openid');
-    lineLoginUrl.searchParams.append('nonce', Math.random().toString(36).substring(7));
+    try {
+      // Construct LINE login URL with required parameters
+      const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
+      lineLoginUrl.searchParams.append('response_type', 'code');
+      lineLoginUrl.searchParams.append('client_id', '2003632166');
+      lineLoginUrl.searchParams.append('redirect_uri', redirectUri);
+      lineLoginUrl.searchParams.append('state', state);
+      lineLoginUrl.searchParams.append('scope', 'profile'); // Simplified scope
+      lineLoginUrl.searchParams.append('bot_prompt', 'normal');
 
-    // Log the final URL for debugging
-    console.log('Final LINE Login URL:', lineLoginUrl.toString());
-    console.log('Redirect URI from URL object:', lineLoginUrl.searchParams.get('redirect_uri'));
+      // Log constructed URL and parameters for debugging
+      console.log('LINE Login URL Parameters:');
+      console.log('- client_id:', lineLoginUrl.searchParams.get('client_id'));
+      console.log('- redirect_uri:', lineLoginUrl.searchParams.get('redirect_uri'));
+      console.log('- scope:', lineLoginUrl.searchParams.get('scope'));
+      console.log('- state:', lineLoginUrl.searchParams.get('state'));
+      console.log('Final LINE Login URL:', lineLoginUrl.toString());
 
-    // Redirect to LINE login
-    window.location.href = lineLoginUrl.toString();
+      // Redirect to LINE login
+      window.location.href = lineLoginUrl.toString();
+    } catch (error) {
+      console.error('Error constructing LINE login URL:', error);
+    }
   };
 
   return (
