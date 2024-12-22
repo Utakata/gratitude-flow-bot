@@ -10,22 +10,26 @@ const Callback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get URL parameters
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const state = params.get('state');
         const error = params.get('error');
         const error_description = params.get('error_description');
 
-        // Check for errors from LINE platform
+        console.log('Callback received - State:', state);
+        console.log('Callback received - Code:', code ? 'Present' : 'Missing');
+        console.log('Callback received - Error:', error);
+
         if (error) {
           console.error('LINE Login Error:', error, error_description);
           throw new Error(error_description || "認証に失敗しました");
         }
 
-        // Verify state to prevent CSRF attacks
-        const savedState = localStorage.getItem('line_state');
+        const savedState = sessionStorage.getItem('line_login_state');
+        console.log('Saved state:', savedState);
+        
         if (!state || state !== savedState) {
+          console.error('State mismatch - Received:', state, 'Saved:', savedState);
           throw new Error("不正なリクエストです");
         }
 
@@ -33,7 +37,6 @@ const Callback = () => {
           throw new Error("認証コードがありません");
         }
 
-        // Exchange authorization code for access token
         const response = await fetch('/api/line/callback', {
           method: 'POST',
           headers: {
@@ -53,11 +56,9 @@ const Callback = () => {
         const data = await response.json();
         console.log('Token exchange successful');
 
-        // Store user data
         if (data.user) {
-          localStorage.setItem('line_user', JSON.stringify(data.user));
+          sessionStorage.setItem('line_user', JSON.stringify(data.user));
           
-          // Update line_settings in Supabase
           await supabase.from('line_settings').upsert({
             user_id: data.user.id,
             line_user_id: data.user.id,
@@ -73,10 +74,7 @@ const Callback = () => {
           });
         }
 
-        // Clean up state
-        localStorage.removeItem('line_state');
-        
-        // Redirect to home
+        sessionStorage.removeItem('line_login_state');
         navigate('/');
       } catch (error: any) {
         console.error('Error during LINE callback:', error);

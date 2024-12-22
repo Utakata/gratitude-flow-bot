@@ -13,40 +13,23 @@ export const LineLoginButton = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Initialize LIFF on component mount
     const initializeLiff = async () => {
       try {
-        // First check if LIFF is initialized
         if (!window.liff) {
           console.error("LIFF SDK is not loaded");
           throw new Error("LIFF SDK is not loaded");
         }
 
-        // Initialize LIFF with detailed logging
         console.log("Starting LIFF initialization...");
         await window.liff.init({
-          liffId: "2006661142-8mJDn7rG", // Your new LIFF ID
+          liffId: "2006661142-8mJDn7rG",
           withLoginOnExternalBrowser: true
         });
         
         console.log("LIFF initialization succeeded");
-
-        // Get and log LIFF context for debugging
-        const context = await window.liff.getContext();
-        console.log("LIFF context:", context);
-        
-        // Log additional LIFF information for debugging
-        console.log("LIFF OS:", window.liff.getOS());
-        console.log("LIFF Language:", window.liff.getLanguage());
-        console.log("LIFF isInClient:", window.liff.isInClient());
         console.log("LIFF isLoggedIn:", window.liff.isLoggedIn());
-        
       } catch (err: any) {
         console.error("LIFF initialization failed:", err);
-        // Log detailed error information
-        if (err.response) {
-          console.error("Error response:", err.response);
-        }
         toast({
           variant: "destructive",
           title: "エラー",
@@ -55,7 +38,6 @@ export const LineLoginButton = () => {
       }
     };
 
-    // Load LIFF SDK
     const liffScript = document.createElement("script");
     liffScript.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
     liffScript.onload = () => {
@@ -80,18 +62,13 @@ export const LineLoginButton = () => {
   const handleLineLogin = async () => {
     try {
       if (!window.liff.isLoggedIn()) {
-        // Generate random state for CSRF protection
         const state = Math.random().toString(36).substring(7);
-        localStorage.setItem('line_state', state);
+        sessionStorage.setItem('line_login_state', state); // Using sessionStorage instead of localStorage
         
-        // Use the exact redirect URI that's registered in LINE Developers console
         const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
-        
-        // Debug logs for troubleshooting
-        console.log('Starting LINE login process...');
+        console.log('Starting LINE login process with state:', state);
         console.log('Using redirect URI:', redirectUri);
 
-        // Login using LIFF with all required scopes
         await window.liff.login({
           redirectUri: redirectUri,
           scope: "profile openid chat_message.write"
