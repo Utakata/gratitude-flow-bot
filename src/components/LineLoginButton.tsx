@@ -16,16 +16,31 @@ export const LineLoginButton = () => {
     // Initialize LIFF on component mount
     const initializeLiff = async () => {
       try {
-        // Use the correct LIFF ID from LINE Developers Console
+        // First check if LIFF is initialized
+        if (!window.liff) {
+          console.error("LIFF SDK is not loaded");
+          throw new Error("LIFF SDK is not loaded");
+        }
+
+        // Initialize LIFF with detailed logging
+        console.log("Starting LIFF initialization...");
         await window.liff.init({
-          liffId: "2003632166-xPvqD4Wy", // Updated LIFF ID
+          liffId: "1657127222-JQWqEBmP", // Replace this with your actual LIFF ID from LINE Developers Console
           withLoginOnExternalBrowser: true
         });
-        console.log("LIFF initialization succeeded");
         
-        // Log LIFF context for debugging
+        console.log("LIFF initialization succeeded");
+
+        // Get and log LIFF context for debugging
         const context = await window.liff.getContext();
         console.log("LIFF context:", context);
+        
+        // Log additional LIFF information for debugging
+        console.log("LIFF OS:", window.liff.getOS());
+        console.log("LIFF Language:", window.liff.getLanguage());
+        console.log("LIFF isInClient:", window.liff.isInClient());
+        console.log("LIFF isLoggedIn:", window.liff.isLoggedIn());
+        
       } catch (err: any) {
         console.error("LIFF initialization failed:", err);
         // Log detailed error information
