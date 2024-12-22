@@ -25,7 +25,7 @@ export const LineLoginButton = () => {
         // Initialize LIFF with detailed logging
         console.log("Starting LIFF initialization...");
         await window.liff.init({
-          liffId: "1657127222-JQWqEBmP", // Your LIFF ID from LINE Developers Console
+          liffId: "2006661142-8mJDn7rG", // Your new LIFF ID
           withLoginOnExternalBrowser: true
         });
         
