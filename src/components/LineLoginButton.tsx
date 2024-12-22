@@ -1,44 +1,81 @@
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    liff: any;
+  }
+}
 
 export const LineLoginButton = () => {
   const { toast } = useToast();
 
-  const handleLineLogin = () => {
-    // Generate random state for CSRF protection
-    const state = Math.random().toString(36).substring(7);
-    localStorage.setItem('line_state', state);
+  useEffect(() => {
+    // Initialize LIFF on component mount
+    const initializeLiff = async () => {
+      try {
+        await window.liff.init({
+          liffId: "2003632166",
+          withLoginOnExternalBrowser: true
+        });
+        console.log("LIFF initialization succeeded");
+      } catch (err: any) {
+        console.error("LIFF initialization failed:", err);
+        toast({
+          variant: "destructive",
+          title: "エラー",
+          description: "LIFFの初期化に失敗しました。",
+        });
+      }
+    };
 
-    // Hardcode the exact redirect URI that's registered in LINE Developers console
-    const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
-    
-    // Debug logs for troubleshooting
-    console.log('Starting LINE login process...');
-    console.log('Using redirect URI:', redirectUri);
+    // Load LIFF SDK
+    const liffScript = document.createElement("script");
+    liffScript.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+    liffScript.onload = () => {
+      console.log("LIFF SDK loaded");
+      initializeLiff();
+    };
+    liffScript.onerror = (err) => {
+      console.error("Failed to load LIFF SDK:", err);
+      toast({
+        variant: "destructive",
+        title: "エラー",
+        description: "LIFF SDKの読み込みに失敗しました。",
+      });
+    };
+    document.body.appendChild(liffScript);
 
+    return () => {
+      document.body.removeChild(liffScript);
+    };
+  }, [toast]);
+
+  const handleLineLogin = async () => {
     try {
-      // Construct LINE login URL with required parameters
-      const lineLoginUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
-      lineLoginUrl.searchParams.append('response_type', 'code');
-      lineLoginUrl.searchParams.append('client_id', '2003632166');
-      lineLoginUrl.searchParams.append('redirect_uri', redirectUri);
-      lineLoginUrl.searchParams.append('state', state);
-      lineLoginUrl.searchParams.append('scope', 'profile openid');
-      lineLoginUrl.searchParams.append('bot_prompt', 'normal');
+      if (!window.liff.isLoggedIn()) {
+        // Generate random state for CSRF protection
+        const state = Math.random().toString(36).substring(7);
+        localStorage.setItem('line_state', state);
+        
+        // Hardcode the exact redirect URI that's registered in LINE Developers console
+        const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
+        
+        // Debug logs for troubleshooting
+        console.log('Starting LINE login process...');
+        console.log('Using redirect URI:', redirectUri);
 
-      // Log constructed URL and parameters for debugging
-      console.log('LINE Login URL Parameters:');
-      console.log('- client_id:', lineLoginUrl.searchParams.get('client_id'));
-      console.log('- redirect_uri:', lineLoginUrl.searchParams.get('redirect_uri'));
-      console.log('- scope:', lineLoginUrl.searchParams.get('scope'));
-      console.log('- state:', lineLoginUrl.searchParams.get('state'));
-      console.log('Final LINE Login URL:', lineLoginUrl.toString());
-
-      // Redirect to LINE login
-      window.location.href = lineLoginUrl.toString();
-    } catch (error) {
-      console.error('Error constructing LINE login URL:', error);
+        // Login using LIFF
+        await window.liff.login({
+          redirectUri: redirectUri
+        });
+      } else {
+        console.log('User is already logged in');
+      }
+    } catch (error: any) {
+      console.error('Error during LINE login:', error);
       toast({
         variant: "destructive",
         title: "エラー",
