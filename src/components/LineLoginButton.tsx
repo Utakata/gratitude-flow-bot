@@ -25,7 +25,7 @@ export const LineLoginButton = () => {
         // Initialize LIFF with detailed logging
         console.log("Starting LIFF initialization...");
         await window.liff.init({
-          liffId: "2003632166-xPvqD4Wy", // Replace with your LIFF ID from LINE Developers Console
+          liffId: "1657127222-JQWqEBmP", // Your LIFF ID from LINE Developers Console
           withLoginOnExternalBrowser: true
         });
         
@@ -84,16 +84,17 @@ export const LineLoginButton = () => {
         const state = Math.random().toString(36).substring(7);
         localStorage.setItem('line_state', state);
         
-        // Hardcode the exact redirect URI that's registered in LINE Developers console
+        // Use the exact redirect URI that's registered in LINE Developers console
         const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
         
         // Debug logs for troubleshooting
         console.log('Starting LINE login process...');
         console.log('Using redirect URI:', redirectUri);
 
-        // Login using LIFF
+        // Login using LIFF with all required scopes
         await window.liff.login({
-          redirectUri: redirectUri
+          redirectUri: redirectUri,
+          scope: "profile openid chat_message.write"
         });
       } else {
         console.log('User is already logged in');
