@@ -16,13 +16,22 @@ export const LineLoginButton = () => {
     // Initialize LIFF on component mount
     const initializeLiff = async () => {
       try {
+        // Use the correct LIFF ID from LINE Developers Console
         await window.liff.init({
-          liffId: "2003632166",
+          liffId: "2003632166-xPvqD4Wy", // Updated LIFF ID
           withLoginOnExternalBrowser: true
         });
         console.log("LIFF initialization succeeded");
+        
+        // Log LIFF context for debugging
+        const context = await window.liff.getContext();
+        console.log("LIFF context:", context);
       } catch (err: any) {
         console.error("LIFF initialization failed:", err);
+        // Log detailed error information
+        if (err.response) {
+          console.error("Error response:", err.response);
+        }
         toast({
           variant: "destructive",
           title: "エラー",
