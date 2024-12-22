@@ -37,6 +37,9 @@ const Callback = () => {
           throw new Error("認証コードがありません");
         }
 
+        // Clear the state immediately after verification
+        sessionStorage.removeItem('line_login_state');
+
         const response = await fetch('/api/line/callback', {
           method: 'POST',
           headers: {
@@ -74,8 +77,7 @@ const Callback = () => {
           });
         }
 
-        sessionStorage.removeItem('line_login_state');
-        navigate('/');
+        navigate('/', { replace: true });
       } catch (error: any) {
         console.error('Error during LINE callback:', error);
         toast({
@@ -83,7 +85,7 @@ const Callback = () => {
           title: "ログインエラー",
           description: error.message || "認証処理中にエラーが発生しました",
         });
-        navigate('/');
+        navigate('/', { replace: true });
       }
     };
 

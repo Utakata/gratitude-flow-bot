@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -11,6 +11,7 @@ declare global {
 
 export const LineLoginButton = () => {
   const { toast } = useToast();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const initializeLiff = async () => {
@@ -28,6 +29,21 @@ export const LineLoginButton = () => {
         
         console.log("LIFF initialization succeeded");
         console.log("LIFF isLoggedIn:", window.liff.isLoggedIn());
+        
+        // Check if user is already logged in and has valid session
+        if (window.liff.isLoggedIn()) {
+          try {
+            const profile = await window.liff.getProfile();
+            console.log("User is already logged in with profile:", profile.userId);
+            sessionStorage.setItem('line_user', JSON.stringify(profile));
+          } catch (error) {
+            console.error("Error getting profile:", error);
+            // If we can't get the profile, the session might be invalid
+            window.liff.logout();
+          }
+        }
+
+        setIsInitialized(true);
       } catch (err: any) {
         console.error("LIFF initialization failed:", err);
         toast({
@@ -37,6 +53,12 @@ export const LineLoginButton = () => {
         });
       }
     };
+
+    // Clean up any existing LIFF script
+    const existingScript = document.querySelector('script[src*="liff"]');
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
 
     const liffScript = document.createElement("script");
     liffScript.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
@@ -55,15 +77,23 @@ export const LineLoginButton = () => {
     document.body.appendChild(liffScript);
 
     return () => {
-      document.body.removeChild(liffScript);
+      const script = document.querySelector('script[src*="liff"]');
+      if (script) {
+        document.body.removeChild(script);
+      }
     };
   }, [toast]);
 
   const handleLineLogin = async () => {
+    if (!isInitialized) {
+      console.log("LIFF is not initialized yet");
+      return;
+    }
+
     try {
       if (!window.liff.isLoggedIn()) {
         const state = Math.random().toString(36).substring(7);
-        sessionStorage.setItem('line_login_state', state); // Using sessionStorage instead of localStorage
+        sessionStorage.setItem('line_login_state', state);
         
         const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
         console.log('Starting LINE login process with state:', state);
@@ -75,6 +105,16 @@ export const LineLoginButton = () => {
         });
       } else {
         console.log('User is already logged in');
+        try {
+          const profile = await window.liff.getProfile();
+          console.log("Retrieved profile:", profile.userId);
+          sessionStorage.setItem('line_user', JSON.stringify(profile));
+        } catch (error) {
+          console.error("Error getting profile:", error);
+          // If we can't get the profile, logout and try again
+          window.liff.logout();
+          window.location.reload();
+        }
       }
     } catch (error: any) {
       console.error('Error during LINE login:', error);
@@ -89,6 +129,7 @@ export const LineLoginButton = () => {
   return (
     <Button
       onClick={handleLineLogin}
+      disabled={!isInitialized}
       className="bg-[#00B900] hover:bg-[#00A000] text-white flex items-center gap-2"
     >
       <LogIn className="h-4 w-4" />
