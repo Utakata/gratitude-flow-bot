@@ -30,15 +30,14 @@ export const LineLoginButton = () => {
         console.log("LIFF initialization succeeded");
         console.log("LIFF isLoggedIn:", window.liff.isLoggedIn());
         
-        // Check if user is already logged in and has valid session
         if (window.liff.isLoggedIn()) {
           try {
             const profile = await window.liff.getProfile();
             console.log("User is already logged in with profile:", profile.userId);
             sessionStorage.setItem('line_user', JSON.stringify(profile));
+            window.location.href = '/gratitude';  // Redirect to gratitude page if already logged in
           } catch (error) {
             console.error("Error getting profile:", error);
-            // If we can't get the profile, the session might be invalid
             window.liff.logout();
           }
         }
@@ -54,7 +53,6 @@ export const LineLoginButton = () => {
       }
     };
 
-    // Clean up any existing LIFF script
     const existingScript = document.querySelector('script[src*="liff"]');
     if (existingScript) {
       document.body.removeChild(existingScript);
@@ -109,9 +107,9 @@ export const LineLoginButton = () => {
           const profile = await window.liff.getProfile();
           console.log("Retrieved profile:", profile.userId);
           sessionStorage.setItem('line_user', JSON.stringify(profile));
+          window.location.href = '/gratitude';  // Redirect to gratitude page
         } catch (error) {
           console.error("Error getting profile:", error);
-          // If we can't get the profile, logout and try again
           window.liff.logout();
           window.location.reload();
         }

@@ -77,7 +77,8 @@ const Callback = () => {
           });
         }
 
-        navigate('/', { replace: true });
+        // Redirect to the gratitude page after successful login
+        navigate('/gratitude', { replace: true });
       } catch (error: any) {
         console.error('Error during LINE callback:', error);
         toast({
