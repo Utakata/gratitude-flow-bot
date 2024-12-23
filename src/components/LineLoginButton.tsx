@@ -34,11 +34,14 @@ export const LineLoginButton = () => {
           try {
             const profile = await window.liff.getProfile();
             console.log("User is already logged in with profile:", profile.userId);
-            sessionStorage.setItem('line_user', JSON.stringify(profile));
-            window.location.href = '/gratitude';  // Redirect to gratitude page if already logged in
+            if (!sessionStorage.getItem('line_user')) {
+              sessionStorage.setItem('line_user', JSON.stringify(profile));
+              window.location.replace('/gratitude');
+            }
           } catch (error) {
             console.error("Error getting profile:", error);
             window.liff.logout();
+            sessionStorage.removeItem('line_user');
           }
         }
 
@@ -107,10 +110,11 @@ export const LineLoginButton = () => {
           const profile = await window.liff.getProfile();
           console.log("Retrieved profile:", profile.userId);
           sessionStorage.setItem('line_user', JSON.stringify(profile));
-          window.location.href = '/gratitude';  // Redirect to gratitude page
+          window.location.replace('/gratitude');
         } catch (error) {
           console.error("Error getting profile:", error);
           window.liff.logout();
+          sessionStorage.removeItem('line_user');
           window.location.reload();
         }
       }

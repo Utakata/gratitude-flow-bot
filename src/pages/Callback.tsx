@@ -37,7 +37,6 @@ const Callback = () => {
           throw new Error("認証コードがありません");
         }
 
-        // Clear the state immediately after verification
         sessionStorage.removeItem('line_login_state');
 
         const response = await fetch('/api/line/callback', {
@@ -75,12 +74,16 @@ const Callback = () => {
             title: "ログインしました",
             description: `ようこそ、${data.user.displayName}さん`,
           });
+          
+          navigate('/gratitude', { replace: true });
+        } else {
+          throw new Error("ユーザー情報の取得に失敗しました");
         }
-
-        // Redirect to the gratitude page after successful login
-        navigate('/gratitude', { replace: true });
       } catch (error: any) {
         console.error('Error during LINE callback:', error);
+        sessionStorage.removeItem('line_login_state');
+        sessionStorage.removeItem('line_user');
+        
         toast({
           variant: "destructive",
           title: "ログインエラー",
