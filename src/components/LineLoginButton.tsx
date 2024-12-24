@@ -24,7 +24,6 @@ export const LineLoginButton = () => {
         console.log("Starting LIFF initialization...");
         await window.liff.init({
           liffId: "2006661142-8mJDn7rG",
-          withLoginOnExternalBrowser: true
         });
         
         console.log("LIFF initialization succeeded");
@@ -56,11 +55,13 @@ export const LineLoginButton = () => {
       }
     };
 
+    // Remove any existing LIFF script
     const existingScript = document.querySelector('script[src*="liff"]');
     if (existingScript) {
       document.body.removeChild(existingScript);
     }
 
+    // Add new LIFF script
     const liffScript = document.createElement("script");
     liffScript.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
     liffScript.onload = () => {
@@ -93,16 +94,9 @@ export const LineLoginButton = () => {
 
     try {
       if (!window.liff.isLoggedIn()) {
-        const state = Math.random().toString(36).substring(7);
-        sessionStorage.setItem('line_login_state', state);
-        
-        const redirectUri = 'https://preview--gratitude-flow-bot.lovable.app/callback';
-        console.log('Starting LINE login process with state:', state);
-        console.log('Using redirect URI:', redirectUri);
-
+        console.log('Starting LINE login process');
         await window.liff.login({
-          redirectUri: redirectUri,
-          scope: "profile openid chat_message.write"
+          scope: "profile openid email chat_message.write",
         });
       } else {
         console.log('User is already logged in');

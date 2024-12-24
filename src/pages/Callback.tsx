@@ -10,78 +10,30 @@ const Callback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const state = params.get('state');
-        const error = params.get('error');
-        const error_description = params.get('error_description');
-
-        console.log('Callback received - State:', state);
-        console.log('Callback received - Code:', code ? 'Present' : 'Missing');
-        console.log('Callback received - Error:', error);
-
-        if (error) {
-          console.error('LINE Login Error:', error, error_description);
-          throw new Error(error_description || "認証に失敗しました");
-        }
-
-        const savedState = sessionStorage.getItem('line_login_state');
-        console.log('Saved state:', savedState);
-        
-        if (!state || state !== savedState) {
-          console.error('State mismatch - Received:', state, 'Saved:', savedState);
-          throw new Error("不正なリクエストです");
-        }
-
-        if (!code) {
-          throw new Error("認証コードがありません");
-        }
-
-        sessionStorage.removeItem('line_login_state');
-
-        const response = await fetch('/api/line/callback', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            code,
-            redirectUri: window.location.origin + '/callback'
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "トークンの取得に失敗しました");
-        }
-
-        const data = await response.json();
-        console.log('Token exchange successful');
-
-        if (data.user) {
-          sessionStorage.setItem('line_user', JSON.stringify(data.user));
+        if (window.liff.isLoggedIn()) {
+          const profile = await window.liff.getProfile();
+          console.log("User profile retrieved:", profile);
+          
+          sessionStorage.setItem('line_user', JSON.stringify(profile));
           
           await supabase.from('line_settings').upsert({
-            user_id: data.user.id,
-            line_user_id: data.user.id,
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
+            user_id: profile.userId,
+            line_user_id: profile.userId,
             is_messaging_enabled: true,
             updated_at: new Date().toISOString(),
           });
 
           toast({
             title: "ログインしました",
-            description: `ようこそ、${data.user.displayName}さん`,
+            description: `ようこそ、${profile.displayName}さん`,
           });
           
           navigate('/gratitude', { replace: true });
         } else {
-          throw new Error("ユーザー情報の取得に失敗しました");
+          throw new Error("ログインに失敗しました");
         }
       } catch (error: any) {
-        console.error('Error during LINE callback:', error);
-        sessionStorage.removeItem('line_login_state');
+        console.error('Error during callback:', error);
         sessionStorage.removeItem('line_user');
         
         toast({
